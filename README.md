@@ -1,5 +1,4 @@
 # Wormhole (WIP)
-![Logo]()
 
 (Wormhole is a project developed while studying [Frida](https://github.com/frida)
 and during my iOS applications and daemons reverse engineering session.)
@@ -32,6 +31,9 @@ Some functionalities could not give precise and complete results
 ### Usage
 Build the project with `make`.
 
-Run web server with `make run-web` or execute script with
+Run web server with `make run-web`.
+
+Execute scripts with `make run-trace` or `make run-dump`.
+
 
 

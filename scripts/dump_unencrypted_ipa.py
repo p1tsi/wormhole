@@ -3,6 +3,10 @@ import frida
 
 from wormhole import Core
 
+"""
+NB: to run this script, it is necessary to have previously launched in a shell the command 'iproxy'
+"""
+
 if __name__ == "__main__":
     c = Core(
         frida.get_usb_device(),
