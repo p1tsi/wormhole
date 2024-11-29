@@ -1,8 +1,5 @@
 # Wormhole (WIP)
 
-(Wormhole is a project developed while studying [Frida](https://github.com/frida)
-and during my iOS applications and daemons reverse engineering session.)
-
 Wormhole is a [frida](https://github.com/frida) wrapper for iOS penetration tester and 
 reverse engineers.
 
@@ -37,3 +34,6 @@ Execute scripts with `make run-trace` or `make run-dump`.
 
 
 
+### Credits
+
+Certain parts of the wormhole-agent are taken from [here](https://github.com/ChiChou/grapefruit).
