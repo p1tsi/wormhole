@@ -6,25 +6,34 @@ COMPILED_AGENT_DIR := $(ROOT_DIR)/agents
 DATA_DIR := $(ROOT_DIR)/appData
 
 .PHONY: all
-all: build-agent setup-venv
+all: build-agent-ios build-agent-macos setup-venv
 
 # Install Node.js dependencies (if not already installed)
 install-node:
-	cd $(AGENT_DIR) && \
+	cd $(AGENT_DIR); \
 	if [ ! -d "node_modules/" ]; then \
 		npm install; \
 	fi
 
 # Build the agent (including copying template files if needed)
-build-agent: install-node
-	cd $(AGENT_DIR) && \
-	if [ ! -e "$(COMPILED_AGENT_DIR)/_base_agent.js" ]; then \
-		if [ ! -e "src/ios/hooking/hooking.ts" ]; then \
-			cp src/ios/hooking/hooking.template.ts src/ios/hooking/hooking.ts; \
-		fi; \
-		rm -rf $(COMPILED_AGENT_DIR)/*; \
-		npm run build $(COMPILED_AGENT_DIR)/_base_agent.js || exit 1; \
-	fi
+build-agent-ios: install-node
+	cd $(AGENT_DIR); \
+	if [ ! -e "src/ios/hooking/hooking.ts" ]; then \
+		cp src/ios/hooking/hooking.template.ts src/ios/hooking/hooking.ts; \
+	fi; \
+	rm -rf $(COMPILED_AGENT_DIR)/_ios_base_agent.js; \
+	npm run build-ios $(COMPILED_AGENT_DIR)/_ios_base_agent.js || exit 1; \
+	#rm src/ios/hooking/hooking.ts;
+
+# Build the agent (including copying template files if needed)
+build-agent-macos: install-node
+	cd $(AGENT_DIR); \
+	if [ ! -e "src/macos/hooking/hooking.ts" ]; then \
+		cp src/macos/hooking/hooking.template.ts src/macos/hooking/hooking.ts; \
+	fi; \
+	rm -rf $(COMPILED_AGENT_DIR)/_macos_base_agent.js; \
+	npm run build-macos $(COMPILED_AGENT_DIR)/_macos_base_agent.js || exit 1; \
+	#rm src/macos/hooking/hooking.ts;
 
 # Set up the Python virtual environment
 setup-venv:
@@ -68,6 +77,7 @@ run-dump: setup-venv
 .PHONY: clean
 clean:
 	rm -rf $(AGENT_DIR)/node_modules
+	rm -rf $(AGENT_DIR)/package-lock.json
 	rm -rf $(COMPILED_AGENT_DIR)/*
 	rm -rf venv
 	rm -rf $(CORE_DIR)/build

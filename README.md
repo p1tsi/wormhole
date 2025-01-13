@@ -25,6 +25,15 @@ of knowing and launching several frida's commands.
 Some functionalities could not give precise and complete results
 (for example, network or sqlite hooking modules).
 
+### Architecture
+
+The main componets of Wormhole are a GUI (TODO), wormhole-core,
+which is the main controller of the system, and wormhole-agent, 
+which is a JS frida agent injected inside processes 
+to be explored.
+
+
+
 ### Usage
 Build the project with `make`.
 
@@ -32,6 +41,10 @@ Run web server with `make run-web`.
 
 Execute scripts with `make run-trace` or `make run-dump`.
 
+
+## TODO
+
+- Web GUI
 
 
 ### Credits
