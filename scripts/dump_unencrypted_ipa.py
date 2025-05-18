@@ -15,7 +15,9 @@ if __name__ == "__main__":
     )
 
     if c.run():
-        c.resume_target()
+        # If I resume the target, and it has implemented a JB detection very early, it is possible that
+        #   the app closes before the dump operation has finished.
+        # c.resume_target()
         c.execute_method("dumpipa", None)
 
         while True:
