@@ -40,8 +40,18 @@ def get_devices():
     return flask.Response(json.dumps(output))
 
 
+@app.route('/api/device/<device_id>', methods=['DELETE'])
+def remove_device(device_id: str):
+    """
+    Remove device from list
+    :device_id: the name of the device to be removed.
+    """
+    frida.get_device_manager().remove_remote_device(device_id)
+    return flask.Response(json.dumps({'status': 'ok'}))
+
+
 @app.route('/api/device/<device_id>/info', methods=['GET'])
-def get_system_info(device_id):
+def get_system_info(device_id: str):
     """
     Retrieve device info by id
     :device_id: id for device. For example, "local", or phone udid
@@ -51,7 +61,7 @@ def get_system_info(device_id):
 
 
 @app.route('/api/device/<device_id>/apps', methods=['GET'])
-def get_installed_apps(device_id):
+def get_installed_apps(device_id:str):
     """
     Retrieve all applications installed and all processes running on the device
     :device_id: id for device. For example, "local", or phone udid
@@ -69,11 +79,10 @@ def get_installed_apps(device_id):
 
     running_processes = list()
 
-    for process in device.enumerate_processes(scope="full"):
+    for process in device.enumerate_processes(scope="metadata"):
         process_info = {
             "pid": process.pid,
             'name': process.name,
-            # 'parameters': proc.parameters
         }
         if process.parameters.get('icons', None):
             process_info['icon'] = (f"data:image/png;base64,"

@@ -2,6 +2,7 @@
 ROOT_DIR := $(shell pwd)
 AGENT_DIR := $(ROOT_DIR)/wormhole-agent
 CORE_DIR := $(ROOT_DIR)/wormhole-core
+GUI_DIR := $(ROOT_DIR)/wormhole-gui
 COMPILED_AGENT_DIR := $(ROOT_DIR)/agents
 DATA_DIR := $(ROOT_DIR)/appData
 
@@ -84,3 +85,11 @@ clean:
 	rm -rf $(CORE_DIR)/wormhole_core.egg-info
 	rm -rf $(DATA_DIR)/*
 
+.PHONY: run-gui
+run-gui:
+	cd $(GUI_DIR) && npm run serve
+
+# Run the Python web server
+.PHONY: run
+run:
+	@$(MAKE) -j 2 run-web run-gui
