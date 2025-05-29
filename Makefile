@@ -50,7 +50,8 @@ setup-venv:
 		python3 -m venv ./venv/; \
 		. venv/bin/activate; \
 		pip install --upgrade pip; \
-		pip install -r requirements.txt; \
+		pip install -r $(CORE_DIR)/requirements.txt; \
+		pip install wormhole-core/ ;\
 	fi
 
 # Install wormhole-core if required
@@ -65,7 +66,7 @@ reinstall-core:
 
 # Run the Python web server
 .PHONY: run-web
-run-web: setup-venv
+run-server: setup-venv
 	. venv/bin/activate; \
 	python3 $(ROOT_DIR)/web.py
 
