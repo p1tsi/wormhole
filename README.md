@@ -1,52 +1,85 @@
-# Wormhole (WIP)
+# Wormhole (Work in Progress)
 
-Wormhole is a [frida](https://github.com/frida) wrapper for iOS penetration tester and 
-reverse engineers.
+**Wormhole** is a wrapper for [Frida](https://github.com/frida), designed to simplify iOS/macOS application analysis for penetration testers and reverse engineers.
 
-It lets you dynamically analyze iOS applications and 
-extract as much information as possible in an easy way, without the need 
-of knowing and launching several frida's commands.
+It enables dynamic analysis and comprehensive data extraction from iOS apps, without requiring deep knowledge of Frida or manual execution of multiple commands.
 
-### Capabilities:
+---
 
-- SSL Pinning bypass
-- Jailbreak detection bypass
-- Unencrypted IPA extraction
-- Hooks by class of functions
-- Customizable hooks
-- IPA static information (entitlements, Info.plist...)
-- Keychain dump
-- Opened files descriptors (vnode and socket)
-- Objective-C in-memory object dump
-- ...
+## Features
 
+- Bypass SSL pinning
 
-#### NB: this project is under (more or less) active development.
-Some functionalities could not give precise and complete results
-(for example, network or sqlite hooking modules).
+- Bypass jailbreak detection
 
-### Architecture
+- Extract unencrypted IPAs
 
-The main componets of Wormhole are a GUI (TODO), wormhole-core,
-which is the main controller of the system, and wormhole-agent, 
-which is a JS frida agent injected inside processes 
-to be explored.
+- Hook functions by class
 
+- Modular and customizable hook system
 
+- Retrieve static app metadata (e.g., entitlements, `Info.plist`)
 
-### Usage
-Build the project with `make`.
+- Dump Keychain contents
 
-Run web server with `make run-web`.
+- List open file descriptors (vnode and socket)
 
-Execute scripts with `make run-trace` or `make run-dump`.
+- Dump Objective-C in-memory objects
 
+- ... and more
 
-## TODO
+> **Note:** Wormhole is under active (though somewhat irregular) development. Some features, such as network or SQLite hooking, may be incomplete or produce imprecise results.
 
-- Web GUI
+---
 
+## Architecture
 
-### Credits
+Wormhole consists of three main components:
 
-Certain parts of the wormhole-agent are taken from [here](https://github.com/ChiChou/grapefruit).
+-  **`wormhole-core`**: The main controller, responsible for coordinating analysis tasks.
+
+-  **`wormhole-agent`**: A Frida-based JavaScript agent injected into the target process for runtime instrumentation.
+
+-  **`wormhole-gui`**: A graphical interface to enhance usability and interaction.
+
+---
+
+## Getting Started
+
+Build & run the project:
+
+```bash
+make
+make  run
+```
+
+Start only one component:
+```bash
+make  run-server
+```
+```bash
+make  run-gui
+```
+
+Run analysis scripts:
+
+```bash
+make  run-trace  # For runtime tracing only
+
+make  run-dump  # For IPA dumping only
+
+```
+
+```bash
+make  build-agent-ios  # For runtime tracing only
+
+make  build-agent-macos  # For IPA dumping only
+
+make reinstall-core     # For rebuilding the core
+
+```
+---
+
+## Credits
+
+Portions of the `wormhole-agent` and `wormhole-gui` are adapted from [grapefruit](https://github.com/ChiChou/grapefruit) by [ChiChou](https://github.com/ChiChou).
