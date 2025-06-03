@@ -22,19 +22,27 @@ build-agent-ios: install-node-agent
 	if [ ! -e "src/ios/hooking/hooking.ts" ]; then \
 		cp src/ios/hooking/hooking.template.ts src/ios/hooking/hooking.ts; \
 	fi; \
+	if [ ! -e "src/macos/hooking/hooking.ts" ]; then \
+		cp src/macos/hooking/hooking.template.ts src/macos/hooking/hooking.ts; \
+	fi; \
 	rm -rf $(COMPILED_AGENT_DIR)/_ios_base_agent.js; \
 	npm run build-ios $(COMPILED_AGENT_DIR)/_ios_base_agent.js || exit 1; \
-	#rm src/ios/hooking/hooking.ts;
+	rm src/ios/hooking/hooking.ts; \
+	rm src/macos/hooking/hooking.ts;
 
 # Build the agent (including copying template files if needed)
 build-agent-macos: install-node-agent
 	cd $(AGENT_DIR); \
+	if [ ! -e "src/ios/hooking/hooking.ts" ]; then \
+		cp src/ios/hooking/hooking.template.ts src/ios/hooking/hooking.ts; \
+	fi; \
 	if [ ! -e "src/macos/hooking/hooking.ts" ]; then \
 		cp src/macos/hooking/hooking.template.ts src/macos/hooking/hooking.ts; \
 	fi; \
 	rm -rf $(COMPILED_AGENT_DIR)/_macos_base_agent.js; \
 	npm run build-macos $(COMPILED_AGENT_DIR)/_macos_base_agent.js || exit 1; \
-	#rm src/macos/hooking/hooking.ts;
+	rm src/ios/hooking/hooking.ts; \
+	rm src/macos/hooking/hooking.ts;
 
 
 # Install Node.js dependencies (if not already installed)
@@ -65,7 +73,7 @@ reinstall-core:
 
 
 # Run the Python web server
-.PHONY: run-web
+.PHONY: run-server
 run-server: setup-venv
 	. venv/bin/activate; \
 	python3 $(ROOT_DIR)/web.py
@@ -101,4 +109,4 @@ run-gui: install-node-gui
 # Run the Python web server
 .PHONY: run
 run:
-	@$(MAKE) -j 2 run-web run-gui
+	@$(MAKE) -j 2 run-server run-gui
