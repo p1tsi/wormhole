@@ -27,8 +27,8 @@ build-agent-ios: install-node-agent
 	fi; \
 	rm -rf $(COMPILED_AGENT_DIR)/_ios_base_agent.js; \
 	npm run build-ios $(COMPILED_AGENT_DIR)/_ios_base_agent.js || exit 1; \
-	rm src/ios/hooking/hooking.ts; \
-	rm src/macos/hooking/hooking.ts;
+	#rm src/ios/hooking/hooking.ts; \
+	#rm src/macos/hooking/hooking.ts;
 
 # Build the agent (including copying template files if needed)
 build-agent-macos: install-node-agent
@@ -41,8 +41,8 @@ build-agent-macos: install-node-agent
 	fi; \
 	rm -rf $(COMPILED_AGENT_DIR)/_macos_base_agent.js; \
 	npm run build-macos $(COMPILED_AGENT_DIR)/_macos_base_agent.js || exit 1; \
-	rm src/ios/hooking/hooking.ts; \
-	rm src/macos/hooking/hooking.ts;
+	#rm src/ios/hooking/hooking.ts; \
+	#rm src/macos/hooking/hooking.ts;
 
 
 # Install Node.js dependencies (if not already installed)
