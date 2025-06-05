@@ -5,18 +5,38 @@ import questionary
 from InquirerPy import inquirer
 
 from wormhole import Core
+from cli.checksec import Checksec
+from cli.info import Info
+from cli.keychain import Keychain
+from cli.fd import FileDescriptor
+from cli.url import Url
+from cli.classdump import Classdump
+from cli.heap import Heap
+from cli.hook import Hook
+from cli.dumpipa import Dumpipa
+from cli.certpinning import Certpinning
+from cli.jbcheckbypass import JBCheckBypass
 
 
-OPERATIONS = [
-    "checksec",
-    "classdump",
-    "heap/inspect",
-    "exit"
-]
+OPERATIONS = {
+    "resume": None,
+    "hook": Hook,
+    "certpinning": Certpinning,
+    "jbcheckbypass": JBCheckBypass,
+    "info": Info,
+    "checksec": Checksec,
+    "keychain": Keychain,
+    "fileDes": FileDescriptor,
+    "url": Url,
+    "classdump": Classdump,
+    "heap": Heap,
+    "dumpipa": Dumpipa,
+    "exit": None
+}
 
 
 
-def print_header():
+def print_asciiart():
 
     ascii_art = r"""
  __        __                   _           _      
@@ -25,16 +45,16 @@ def print_header():
    \ V  V / (_) | |  | | | | | | | | | (_) | |  __/
     \_/\_/ \___/|_|  |_| |_| |_|_| |_|\___/|_|\___|
 
-                            with ❤️  by p1tsi \n
+                                            by p1tsi
 """
 
     print(ascii_art)
 
 
 def print_intro_message():
-    intro_message = "Welcome to Wormhole! "
-    intro_message += "I'll try to help you finding all 🐛 inside 🍎 applications or processes!"
-    intro_message += "\n\n"
+    intro_message = "Welcome to Wormhole!\n"
+    intro_message += "I'll try to help you finding all 🐛 inside 🍎 applications or processes!\n"
+    intro_message += "\t\t\t      ...and maybe 🤖 in the future...\n"
     print(intro_message)
 
 
@@ -105,7 +125,7 @@ def choose_app_or_proc(device, app_or_proc="Apps"):
 
 if __name__ == "__main__":
 
-    print_header()
+    print_asciiart()
     print_intro_message()
 
     # Choose device
@@ -115,29 +135,37 @@ if __name__ == "__main__":
     apps_or_processes = choose_app_or_process()
 
     # Choose the app or the process
-    instance = choose_app_or_proc(device, apps_or_processes)
+    instance = choose_app_or_proc(device, apps_or_processes)        
 
     # Attach the agent and start the analysis
     core = Core(device, instance, None)
     started = core.run()
 
-    if started:
-        core.resume_target()
+    #if started:
+    #    core.resume_target()
 
-    run = True
-    while run:
+    if apps_or_processes == "Apps":
+        print("‼️  TARGET NEED TO BE RESUMED ‼️")
+        print("Select 'resume' or start hooking to resume the app")
+
+    while True:
         choice = inquirer.fuzzy(
             message="Available operations:", 
             choices=OPERATIONS
         ).execute()
 
-        if choice == 'exit':
+        if choice == "exit":
             core.kill_session()
             exit(0)
-
-        data, err = core.execute_method(choice, 'PreferencesAppController')
-        print(data)
-
         
-
-    
+        if started and choice == "resume":
+            core.resume_target()
+        else:
+            try:
+                OPERATIONS.get(choice)(core).run()
+            except Exception as e:
+                print(f"Error in {choice} command: {e}")
+            
+            print()
+            print("-" * 50)
+          
