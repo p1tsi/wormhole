@@ -4,5 +4,11 @@ class BaseModule:
         self.wh = wh
         self.command = command
     
-    def run(self):
+    def _run(self):
         raise NotImplementedError()
+
+    def run(self):
+        try:
+            self._run()
+        except KeyboardInterrupt:
+            return

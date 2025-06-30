@@ -1,5 +1,3 @@
-import questionary
-
 from InquirerPy import inquirer
 
 from cli.utils import *
@@ -32,7 +30,7 @@ class Classdump(BaseModule):
         inspect_command = self.command + "inspect"
         return self.wh.execute_method(inspect_command, clazz)
 
-    def run(self):
+    def _run(self):
 
         class_list, err = self.search()
         class_info, err = self.filter_classes(class_list)

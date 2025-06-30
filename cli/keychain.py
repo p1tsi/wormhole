@@ -7,7 +7,7 @@ class Keychain(BaseModule):
     def __init__(self, wh):
         super().__init__(wh, Keychain.__name__.lower()+"/")
 
-    def run(self):
+    def _run(self):
         self.command += "list"
         data, err = self.wh.execute_method(self.command, False) # The false is about auth with FaceID/TouchID
         

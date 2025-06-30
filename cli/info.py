@@ -1,5 +1,3 @@
-import questionary
-
 from InquirerPy import inquirer
 
 from cli.utils import *
@@ -44,7 +42,7 @@ class Info(BaseModule):
     def __init__(self, wh):
         super().__init__(wh, Info.__name__.lower()+"/")
 
-    def run(self):
+    def _run(self):
 
         choice = inquirer.fuzzy(
             message="Available subcommands:",

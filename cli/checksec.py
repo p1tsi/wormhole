@@ -7,7 +7,7 @@ class Checksec(BaseModule):
     def __init__(self, wh):
         super().__init__(wh, Checksec.__name__.lower())
 
-    def run(self):
+    def _run(self):
         data, err = self.wh.execute_method(self.command)
         Checksec.print_data(data, err)
 

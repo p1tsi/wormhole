@@ -1,4 +1,3 @@
-import os
 import frida
 import questionary
 
@@ -16,13 +15,18 @@ from cli.hook import Hook
 from cli.dumpipa import Dumpipa
 from cli.certpinning import Certpinning
 from cli.jbcheckbypass import JBCheckBypass
+from cli.fs import FileSystem
+from cli.symbol import Symbol
 
 
-OPERATIONS = {
+EARLY_OPERATIONS = {
     "resume": None,
     "hook": Hook,
     "certpinning": Certpinning,
-    "jbcheckbypass": JBCheckBypass,
+    "jbcheckbypass": JBCheckBypass
+}
+
+OPERATIONS = {
     "info": Info,
     "checksec": Checksec,
     "keychain": Keychain,
@@ -31,9 +35,10 @@ OPERATIONS = {
     "classdump": Classdump,
     "heap": Heap,
     "dumpipa": Dumpipa,
+    "fs": FileSystem,
+    "symbol": Symbol,
     "exit": None
 }
-
 
 
 def print_asciiart():
@@ -57,6 +62,8 @@ def print_intro_message():
     intro_message += "\t\t\t      ...and maybe 🤖 in the future...\n"
     print(intro_message)
 
+def print_environment():
+    print(f"Frida: {frida.__version__}\n")
 
 def get_available_devices():
     devices, device_list = [], []
@@ -66,16 +73,21 @@ def get_available_devices():
             devices.append(d)
     return devices, device_list
 
+def add_remote_device():
+    frida.get_device_manager().add_remote_device("192.168.64.3")
+
 def choose_device():
     devices, device_list = get_available_devices()
+    print(devices)
 
-    if not devices:
-        print("No devices found.")
-        exit(1)
-
+    device_list.append("add")
     choice = questionary.select(
         "Here are the available devices:", choices=device_list
     ).ask()
+
+    if choice == "add":
+        add_remote_device()
+        return choose_device()
 
     idx = device_list.index(choice)
     return devices[idx]
@@ -118,6 +130,9 @@ def choose_app_or_proc(device, app_or_proc="Apps"):
         max_height="90%"
     ).execute()
 
+    if not choice:
+        return None
+
     idx = instance_list.index(choice)
     return instances[idx].identifier if app_or_proc == "Apps" else instances[idx].pid
 
@@ -127,15 +142,22 @@ if __name__ == "__main__":
 
     print_asciiart()
     print_intro_message()
+    print_environment()
 
     # Choose device
     device = choose_device()
 
-    # Choose if analayze app or process
-    apps_or_processes = choose_app_or_process()
+    not_choosen = True
+    while not_choosen:
+        # Choose if analayze app or process
+        apps_or_processes = choose_app_or_process()
 
-    # Choose the app or the process
-    instance = choose_app_or_proc(device, apps_or_processes)        
+        # Choose the app or the process
+        instance = choose_app_or_proc(device, apps_or_processes)        
+
+        if instance:
+            not_choosen = False
+
 
     # Attach the agent and start the analysis
     core = Core(device, instance, None)
@@ -144,28 +166,45 @@ if __name__ == "__main__":
     #if started:
     #    core.resume_target()
 
-    if apps_or_processes == "Apps":
-        print("‼️  TARGET NEED TO BE RESUMED ‼️")
-        print("Select 'resume' or start hooking to resume the app")
+    resumed = apps_or_processes == "Processes"
 
     while True:
-        choice = inquirer.fuzzy(
-            message="Available operations:", 
-            choices=OPERATIONS
-        ).execute()
 
-        if choice == "exit":
+        if not resumed:
+            print("‼️  TARGET NEED TO BE RESUMED ‼️")
+            print("Select 'resume' or start hooking to resume the app")
+            operations = EARLY_OPERATIONS
+        
+        else:
+            operations = EARLY_OPERATIONS | OPERATIONS
+
+        try:
+            choice = inquirer.fuzzy(
+                message="Available operations:", 
+                choices=operations
+            ).execute()
+
+            if choice == "exit":
+                core.kill_session()
+                exit(0)
+            
+            if started and choice == "resume":
+                core.resume_target()
+                resumed = True
+            else:
+                try:
+                    operations.get(choice)(core).run()
+
+                    if choice == "hook":
+                        resumed = True
+                        
+                except Exception as e:
+                    print(f"Error in {choice} command: {e}")
+                
+                print()
+                print("-" * 50)
+        except KeyboardInterrupt:
+            print("Goodbye!")
             core.kill_session()
             exit(0)
-        
-        if started and choice == "resume":
-            core.resume_target()
-        else:
-            try:
-                OPERATIONS.get(choice)(core).run()
-            except Exception as e:
-                print(f"Error in {choice} command: {e}")
-            
-            print()
-            print("-" * 50)
           
