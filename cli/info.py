@@ -7,6 +7,7 @@ class UserDefaults:
 
     @staticmethod
     def print_data(data, err):
+        print()
         print_dict(data)
 
 

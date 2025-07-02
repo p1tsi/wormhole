@@ -74,7 +74,8 @@ def get_available_devices():
     return devices, device_list
 
 def add_remote_device():
-    frida.get_device_manager().add_remote_device("192.168.64.3")
+    ip = input(" IP:port > ")
+    frida.get_device_manager().add_remote_device(ip)
 
 def choose_device():
     devices, device_list = get_available_devices()
