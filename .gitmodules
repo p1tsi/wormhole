@@ -4,7 +4,6 @@
 [submodule "wormhole-gui"]
 	path = wormhole-gui
 	url = https://github.com/p1tsi/wormhole-gui
-	url = https://github.com/p1tsi/wormhole-agent
 [submodule "wormhole-agent"]
 	path = wormhole-agent
 	url = https://github.com/p1tsi/wormhole-agent
