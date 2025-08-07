@@ -4,26 +4,15 @@ import questionary
 from InquirerPy import inquirer
 
 from wormhole import Core
-from cli.checksec import Checksec
-from cli.info import Info
-from cli.keychain import Keychain
-from cli.fd import FileDescriptor
-from cli.url import Url
-from cli.classdump import Classdump
-from cli.heap import Heap
-from cli.hook import Hook
-from cli.dumpipa import Dumpipa
-from cli.certpinning import Certpinning
-from cli.jbcheckbypass import JBCheckBypass
-from cli.fs import FileSystem
-from cli.symbol import Symbol
+from cli import *
 
 
 EARLY_OPERATIONS = {
     "resume": None,
     "hook": Hook,
     "certpinning": Certpinning,
-    "jbcheckbypass": JBCheckBypass
+    "jbcheckbypass": JBCheckBypass,
+    "dumpipa": Dumpipa
 }
 
 OPERATIONS = {
@@ -57,13 +46,13 @@ def print_asciiart():
 
 
 def print_intro_message():
-    intro_message = "Welcome to Wormhole!\n"
-    intro_message += "I'll try to help you finding all 🐛 inside 🍎 applications or processes!\n"
-    intro_message += "\t\t\t      ...and maybe 🤖 in the future...\n"
+    intro_message = "\tWelcome to Wormhole!\n"
+    intro_message += "\tI'll try to help you finding all 🐛 inside 🍎 applications or processes!\n"
+    intro_message += "\t\t\t\t      ...and maybe 🤖 in the future...\n"
     print(intro_message)
 
 def print_environment():
-    print(f"Frida: {frida.__version__}\n")
+    print(f"\tFrida version: {frida.__version__}\n")
 
 def get_available_devices():
     devices, device_list = [], []
@@ -79,7 +68,7 @@ def add_remote_device():
 
 def choose_device():
     devices, device_list = get_available_devices()
-    print(devices)
+    #print(devices)
 
     device_list.append("add")
     choice = questionary.select(
@@ -122,9 +111,14 @@ def list_processes(device):
     return processes_objects, processes
 
 
-def choose_app_or_proc(device, app_or_proc="Apps"):
-    instances, instance_list = list_apps(device) if app_or_proc == "Apps" else list_processes(device)
-    message = "Select an app:" if app_or_proc == "Apps" else "Select a process:"
+def choose_app_or_proc(device, item_type="Apps"):
+    instances, instance_list = list_apps(device) if item_type == "Apps" else list_processes(device)
+    if not instance_list:
+        print(f"Impossible to retrieve {item_type}: maybe the device is not jailbroken.")
+        
+        return None
+    
+    message = "Select an item:"
     choice = inquirer.fuzzy(
         message=message, 
         choices=instance_list,
@@ -135,7 +129,7 @@ def choose_app_or_proc(device, app_or_proc="Apps"):
         return None
 
     idx = instance_list.index(choice)
-    return instances[idx].identifier if app_or_proc == "Apps" else instances[idx].pid
+    return instances[idx].identifier if item_type == "Apps" else instances[idx].pid
 
 
 
@@ -148,64 +142,60 @@ if __name__ == "__main__":
     # Choose device
     device = choose_device()
 
-    not_choosen = True
-    while not_choosen:
-        # Choose if analayze app or process
-        apps_or_processes = choose_app_or_process()
+    # Choose if analayze app or process
+    item_type = choose_app_or_process()
 
-        # Choose the app or the process
-        instance = choose_app_or_proc(device, apps_or_processes)        
+    # Choose the app or the process
+    instance = choose_app_or_proc(device, item_type)
+    
+    if instance:
+    
+        # Attach the agent and start the analysis
+        core = Core(device, instance, None)
+        started = core.run()
 
-        if instance:
-            not_choosen = False
+        #if started:
+        #    core.resume_target()
 
+        resumed = item_type == "Processes"
 
-    # Attach the agent and start the analysis
-    core = Core(device, instance, None)
-    started = core.run()
+        while True:
 
-    #if started:
-    #    core.resume_target()
-
-    resumed = apps_or_processes == "Processes"
-
-    while True:
-
-        if not resumed:
-            print("‼️  TARGET NEED TO BE RESUMED ‼️")
-            print("Select 'resume' or start hooking to resume the app")
-            operations = EARLY_OPERATIONS
-        
-        else:
-            operations = EARLY_OPERATIONS | OPERATIONS
-
-        try:
-            choice = inquirer.fuzzy(
-                message="Available operations:", 
-                choices=operations
-            ).execute()
-
-            if choice == "exit":
-                core.kill_session()
-                exit(0)
+            if not resumed:
+                print("‼️  TARGET NEED TO BE RESUMED ‼️")
+                print("Select 'resume' or start hooking to resume the app")
+                operations = EARLY_OPERATIONS
             
-            if started and choice == "resume":
-                core.resume_target()
-                resumed = True
             else:
-                try:
-                    operations.get(choice)(core).run()
+                operations = EARLY_OPERATIONS | OPERATIONS
 
-                    if choice == "hook":
-                        resumed = True
-                        
-                except Exception as e:
-                    print(f"Error in {choice} command: {e}")
+            try:
+                choice = inquirer.fuzzy(
+                    message="Available operations:", 
+                    choices=operations
+                ).execute()
+
+                if choice == "exit":
+                    #core.kill_session()
+                    exit(0)
                 
-                print()
-                print("-" * 50)
-        except KeyboardInterrupt:
-            print("Goodbye!")
-            core.kill_session()
-            exit(0)
+                if started and choice == "resume":
+                    core.resume_target()
+                    resumed = True
+                else:
+                    try:
+                        operations.get(choice)(core).run()
+
+                        if choice == "hook":
+                            resumed = True
+                            
+                    except Exception as e:
+                        print(f"Error in {choice} command: {e}")
+                    
+                    print()
+                    print("-" * 50)
+            except KeyboardInterrupt:
+                print("Goodbye!")
+                #core.kill_session()
+                exit(0)
           

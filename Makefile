@@ -18,20 +18,20 @@ install-node-agent:
 
 # Build the agent (including copying template files if needed)
 build-agent-ios: install-node-agent
+	
 	cd $(AGENT_DIR); \
 	if [ ! -e "src/common/hooking/hooking.ts" ]; then \
 		cp src/common/hooking/hooking.template.ts src/common/hooking/hooking.ts; \
 	fi; \
-	rm -rf $(COMPILED_AGENT_DIR)/_ios_base_agent.js; \
 	npm run build-ios || exit 1;
 
 # Build the agent (including copying template files if needed)
 build-agent-macos: install-node-agent
+	
 	cd $(AGENT_DIR); \
 	if [ ! -e "src/common/hooking/hooking.ts" ]; then \
 		cp src/common/hooking/hooking.template.ts src/common/hooking/hooking.ts; \
 	fi; \
-	rm -rf $(COMPILED_AGENT_DIR)/_macos_base_agent.js; \
 	npm run build-macos || exit 1;
 
 
