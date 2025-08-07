@@ -1,9 +1,0 @@
-[submodule "wormhole-core"]
-	path = wormhole-core
-	url = https://github.com/p1tsi/wormhole-core
-[submodule "wormhole-gui"]
-	path = wormhole-gui
-	url = https://github.com/p1tsi/wormhole-gui
-[submodule "wormhole-agent"]
-	path = wormhole-agent
-	url = https://github.com/p1tsi/wormhole-agent
